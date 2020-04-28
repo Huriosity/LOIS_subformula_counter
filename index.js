@@ -2,23 +2,83 @@ ok_button = document.getElementById("ok_button");
 input_field = document.getElementById("input_field");
 result_textarea = document.getElementById("result_textarea");
 
+let openBracketsCount = 0;
+
 ok_button.addEventListener("click", () => {
     main();
 });
 
 
 function main(){
-    if(!countBrackets(getBracketsFromString(input_field.value))){
+    let inputString = input_field.value;
+    // inputString = inputString.replace(/\s+/g,'');
+    if(!countBrackets(getBracketsFromString(inputString))){
         result_textarea.value = "проверь скобки";
+        openBracketsCount = 0;
     } else {
-        result_textarea.value = "";
+        result_textarea.value = "Открывающий скобок = " + openBracketsCount;
+        console.log("ipnut before = " + inputString);
+        findAllSubStrings(inputString);
+        console.log("ipnut after = " + inputString);
     }
+}
+
+function findAllSubStrings(inputString){
+
+    // 
+
+    let subStringsArray = [];
+
+    let openBracketIndexArray = [];
+    let closeBracketIndexArray = [];
+
+    let indexOfOpenBracket = inputString.indexOf("(");
+    while (indexOfOpenBracket != -1) {
+        openBracketIndexArray.push(indexOfOpenBracket);
+        indexOfOpenBracket = inputString.indexOf("(", indexOfOpenBracket + 1);
+    }
+
+    let indexOfCloseBracket = inputString.indexOf(")");
+    while (indexOfCloseBracket != -1) {
+        closeBracketIndexArray.push(indexOfCloseBracket);
+        indexOfCloseBracket = inputString.indexOf(")", indexOfCloseBracket + 1);
+    }
+    // console.log(openBracketsCount);
+    console.log(closeBracketIndexArray[0]);
+    console.log(closeBracketIndexArray[1]);
+    // for(let i = 0; i < openBracketsCount;i++) {
+        
+    //     console.log("iter" + i + " openBracketIndex = " + openBracketIndexArray[i] + " closeBracketIndex = " + closeBracketIndexArray[ (openBracketsCount - 1) - i]);
+    // }
+    // let csBracketsArrLength = closeBracketIndexArray.length;
+
+     for(let i = 0; i < openBracketsCount;i++) {
+        let closeBracketIndex = (openBracketsCount - 1) - i;
+         //console.log("num = " + (csBracketsArrLength - 1));
+         console.log("iter" + i + " openBracketIndex = " + openBracketIndexArray[i] + " closeBracketIndex = " + closeBracketIndexArray[closeBracketIndex]);
+         if ( closeBracketIndexArray[closeBracketIndex] - openBracketIndexArray[i] === 1 ) {
+             result_textarea.value = "!!ОШИБКА (пустая строка) " + "iter" + i + " openBracketIndex = " + openBracketIndexArray[i] + " closeBracketIndex = " + closeBracketIndexArray[closeBracketIndex];
+         } else {
+             subStringsArray.push(inputString.substring(openBracketIndexArray[i] + 1,closeBracketIndexArray[closeBracketIndex]));
+             console.log("iter" + i + " subst = " + subStringsArray[i]   );
+         }
+
+     }
+
 }
 
 function getBracketsFromString(inputString){
     let bracketsString = "";
+    openBracketsCount = 0;
     for(let i = 0; i < inputString.length; i += 1) {
-        if (inputString[i] === '(' || inputString[i] === ')') {
+
+        if (inputString[i] === '(') {
+
+            bracketsString += inputString[i];
+            openBracketsCount += 1;
+
+        } else if ( inputString[i] === ')'){
+
             bracketsString += inputString[i];
         }
     }

@@ -211,7 +211,7 @@ function allSubStringsIsFormula(inputString){
         }
 
     } else {
-        if ( checkString(inputString) ) {
+        if ( !checkString(inputString) ) {
             isFormula = false;
         }
     }
@@ -284,7 +284,9 @@ function sortArraysOfString(inputArrayOfString){
 function checkString(getStrings){    
     if ( getStrings.length ) {
         if ( checkSubString(getStrings) ) {
-            arrayChecked.push(getStrings);
+            if (!arrayContainsElement(getStrings, arrayChecked)) {
+                arrayChecked.push(getStrings);
+            }
             return true;
         } else {
             return false;
@@ -297,6 +299,7 @@ function checkSubString(string){
     for(let i = arrayChecked.length - 1; i >= 0 ; i -= 1) {
         if ( string.includes( arrayChecked[i] ) ) { 
             string = string.replace(arrayChecked[i],"A");
+            i++;
         }
     }
 

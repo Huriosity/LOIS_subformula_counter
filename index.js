@@ -1,3 +1,11 @@
+//////////////////////////////////////////////////////////////////////////////////////
+// Лабораторная работа 1 по дисциплине ЛОИС
+// Выполнена студентом группы 721702 БГУИР Гуриновичем Александром Александровичем
+// Файл содержит функции нахождения подформул,генерации формул, систему проверки знаний пользователя
+//
+// Функция генерации формулы https://github.com/PlagaMedicum/LOIS/tree/master/Lab1
+//
+
 okButton = document.getElementById("ok_button");
 inputField = document.getElementById("input_field");
 resultTextarea = document.getElementById("result_textarea");

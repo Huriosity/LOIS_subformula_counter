@@ -2,14 +2,26 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <form>
-      <input type="text" value = "fasf" id = "input_field">
+    <button type="button" id = "classic" class = "selected">обычный режим</button>
+    <button type="button" id = "user_test">режим проверки пользователя</button>
+    <br>
+    <button type="button" id = "genTest" class = "none">generateTestCase</button>
+    <input type = "text" id = "genResult"  class = "none">
+    <br>
+    <label for="answer" id = "answerLabel" class = "none">Введите ответ</label>
+    <input type = "text" id = "answer"  class = "none">
+    <input type="button" value="OK" id = "checkAnswer" class = "none">
+    <form id = "formulaForm">
+      <label for="input_field">Введите формулу</label>
+      <input type="text" value = "" id = "input_field">
       <input type="button" value="OK" id = "ok_button">
     </form>
     <br/>
     <textarea id = "result_textarea" rows="4" cols="50"></textarea>
   </body>
   <script src="index.js"></script>
+  <script src = "test_generator.js"></script>
 </html> 

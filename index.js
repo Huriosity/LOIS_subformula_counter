@@ -1,6 +1,58 @@
-ok_button = document.getElementById("ok_button");
-input_field = document.getElementById("input_field");
-result_textarea = document.getElementById("result_textarea");
+okButton = document.getElementById("ok_button");
+inputField = document.getElementById("input_field");
+resultTextarea = document.getElementById("result_textarea");
+formulaForm = document.getElementById("formulaForm");
+
+classicModeButton = document.getElementById("classic");
+testModeButton = document.getElementById("user_test");
+
+genTestButton = document.getElementById("genTest");
+genResultField = document.getElementById("genResult");
+answerField = document.getElementById("answer");
+answerLabel = document.getElementById("answerLabel");
+checkAnswerButton = document.getElementById("checkAnswer");
+
+
+okButton.addEventListener("click", () => {
+    main();
+});
+
+checkAnswerButton.addEventListener("click", () => {
+    checkAnswer();
+});
+
+genTestButton.addEventListener("click", () => {
+    genResult.value = genFormula();
+});
+
+classicModeButton.addEventListener("click", () => {
+    testModeButton.removeAttribute("class");
+    classicModeButton.setAttribute("class", "selected");
+
+    formulaForm.removeAttribute("class");
+    genTestButton.setAttribute("class","none");
+    genResultField.setAttribute("class","none");
+    answerField.setAttribute("class","none");
+    answerLabel.setAttribute("class","none");
+    checkAnswerButton.setAttribute("class","none");
+    resultTextarea.value = "";
+
+});
+
+testModeButton.addEventListener("click", () => {
+    classicModeButton.removeAttribute("class");testModeButton
+    testModeButton.setAttribute("class", "selected")
+
+    formulaForm.setAttribute("class","none");
+    genTestButton.removeAttribute("class");
+    genResultField.removeAttribute("class");
+    answerField.removeAttribute("class");
+    answerLabel.removeAttribute("class");
+    checkAnswerButton.removeAttribute("class");
+    resultTextarea.value = "";
+});
+
+
 
 let openBracketsCount = 0;
 let openArray = [];
@@ -9,17 +61,9 @@ let closeArray = [];
 let arrayChecked = [];
 let arrayOfFindAtom = [];
 
-let subFormulasCounter = 0;
-
 const atom = /[A-Z0-1]/g;
-
 const operators = /[*&|~]/g;
 const arrow = /(->)/
-
-ok_button.addEventListener("click", () => {
-    main();
-});
-
 
 function main(){
 
@@ -30,331 +74,25 @@ function main(){
     arrayChecked = [];
     arrayOfFindAtom = [];
 
-    subFormulasCounter = 0;
-
-    let inputString = input_field.value;
+    let inputString = inputField.value;
     let brackets = getBracketsFromString(inputString);
     if(!countBrackets(brackets)){
-        result_textarea.value = "проверь скобки";
+        resultTextarea.value = "проверь скобки";
         openBracketsCount = 0;
     } else {
-        result_textarea.value = "Открывающий скобок = " + openBracketsCount;
+        resultTextarea.value = "Открывающий скобок = " + openBracketsCount;
         if(checkSpace(inputString)){
-            findAllSubStrings(inputString);
-            findAllAtom(inputString);
-        } else {
-            result_textarea.value = "проверь пробелы";
-        }
-    }
-}
-
- function sortArraysOfString(inputArrayOfString){
-     for(let i = 0;i < inputArrayOfString.length; i += 1){
-        for(let j = 0; j < inputArrayOfString.length; j += 1) {
-            if (inputArrayOfString[i].length >= inputArrayOfString[j].length){
-                continue;
-            } else if (inputArrayOfString[i].length < inputArrayOfString[j].length) {
-                let tmp = inputArrayOfString[i];
-                inputArrayOfString[i] = inputArrayOfString[j];
-                inputArrayOfString[j] = tmp;
-            }
-        }
-     }
-     return inputArrayOfString;
-
- }
-
-function findAllSubStrings(inputString){
-    let subStringsArray = [];
-
-    configurateBraketsPair(inputString)
-    
-    console.log(openArray);
-    console.log(closeArray);
-    
-    let getFirstFindBracketIndex = Math.min.apply(null,openArray);
-    let getLastFindBracketIndex = Math.max.apply(null,closeArray);
-
-
-    
-    if(openArray.length > 0){
-
-        console.log("test consol");
-        console.log(getLastFindBracketIndex);
-        console.log(getFirstFindBracketIndex);
-    
-        let difference =  (getLastFindBracketIndex - getFirstFindBracketIndex);
-    
-        console.log("getLastFindBracketIndex - getFirstFindBracketIndex = " + difference);
-    
-        console.log("String.length = " + inputString.length);
-    
-        if ( difference + 1 !== inputString.length){
-            result_textarea.value = "все должно находиться внутри скобок";
-            return null;
-        }
-
-
-        for(let i = 0; i < openArray.length;i++) {
-            subStringsArray.push(inputString.substring(openArray[i],closeArray[i] + 1));
-            // console.log("iter" + i + " subst = " + subStringsArray[i]   )
-        }
-        console.log("Массив до сортировки = " + subStringsArray);
-        subStringsArray = sortArraysOfString(subStringsArray);
-        console.log("Массив после сортировки = " + subStringsArray);
-        for(let i = 0; i < openArray.length;i++) {
-            checkString(subStringsArray[i])
-        }
-
-    } else {
-        checkString(inputString)
-
-    }
-   
-}
-
-function configurateBraketsPair(array){
-    let visitedArray = [];
-    let currentOpenState = [];
-    console.log(openBracketsCount);
-    // for(let i = 0;i < openBracketsCount;i++) {
-    //     openArray[i] = "";
-    //     closeArray[i] = ""
-    // }
-
-    let tmp = array;
-    let indexOpen = -1;
-    let indexClose = -1;
-
-    let b = false;
-    let counterIter = 0;
-    if(openBracketsCount === 0 ) {
-        return;
-    }
-    let counterX = 0;
-    for(let i = 0;i <= tmp.length; ){
-        if ( !visitedArray.includes(i) && tmp[i] === "(") {
-            indexOpen = i;
-            currentOpenState.push(i);
-        }  else if (!visitedArray.includes(i) && tmp[i] === ")"){
-            indexClose = i;
-        }
-
-        if ( indexOpen !== -1 && indexClose !== -1){
-
-            openArray.push(currentOpenState[currentOpenState.length-1] );
-            closeArray.push(indexClose );
-
-            visitedArray.push(currentOpenState[currentOpenState.length-1]);
-            visitedArray.push(indexClose);
-
-            currentOpenState.pop();
-            counterX ++;
-
-            // console.log("Посетили + "  + indexOpen);
-            // console.log("Посетили + "  + indexClose);
-
-            indexClose = -1;
-            if (currentOpenState.length === 0) {
-                indexOpen = -1;
-            }
-  
-
-        }
-        // if (counterIter > 1000) {
-        //     break;
-        // }
-        if (i === tmp.length && counterX !== openBracketsCount) {
-            i = 0;
-            continue;
-        }
-        i++;
-   
-    }
-}
-
-function removeFirstBrackets(string) {
-    if (string[0] === "("){
-        console.log("remove first bracket");
-        string = string.substring(1,string.length);
-    }
-
-    if(string[string.length-1] === ")") {
-        console.log("remove last bracket");
-        string = string.substring(0,string.length-1);
-    }
-    return string;
-}
-
-function arrayContainsElement(el,array){
-    // console.log("Ищем элемент = " + el);
-    for (let i = 0; i < array.length; i++ ) {
-        // console.log("arr[" + i + "] = " + array[i]);
-        console.log(array[i].toString(10) === (el).toString(10));
-        // console.log("array el type = " + typeof(array[i]));
-        // console.log("el type = " + typeof(el));
-        if (array[i].toString(10) === (el).toString(10)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-function findAllAtom(string){
-    let counter = 0;
-    for(let i = 0; i < arrayChecked.length ; i += 1) {
-        if ( string.includes( arrayChecked[i] ) ) {
-            counter++;
-            console.log("Подформула в скобках = " + arrayChecked[i]);
-        }
-    }
-    for(let i = 0; i < string.length;i++ ) {
-        let atomic = string[i].match(atom); 
-        if (atomic!== null) {
-            console.log("Первый массив = " + arrayChecked);
-            let condition = arrayContainsElement(atomic, arrayChecked);
-            console.log("condition 1 = " + condition);
-            if (condition) {
-                console.log("Это значение уже было в массиве ");
-                console.log(arrayChecked);
-                continue;
-            }
-            condition = arrayContainsElement(atomic, arrayOfFindAtom)
-            if ( condition) {
-                console.log("уже был");
+            if ( allSubStringsIsFormula(inputString) ) {
+                resultTextarea.value = "Строка является формулой.";
+                resultTextarea.value += " Найдено " + findAtomCount(inputString) + " подформул";
             } else {
-                arrayOfFindAtom.push(atomic);
-                console.log("Найдена обычная формула = " + atomic);
-                counter++;
+             resultTextarea.value = "Строка не является формулой.";
             }
-            
-        }
-    }
-    console.log("array of atoms = " + arrayOfFindAtom);
-    console.log("Насчитали " + counter );
-    result_textarea.value += " Найдено " + counter + " подформул"
-}
 
-function checkSubString(string){
-    // let tmp_length = tmp[0].length 
-    console.log("type = " + typeof string);
-    console.log("Проверяем строку " + string);
-
-    for(let i = arrayChecked.length - 1; i >= 0 ; i -= 1) {
-        if ( string.includes( arrayChecked[i] ) ) {
-            console.log("include " + arrayChecked[i]);
-            let firsFindIndex = string.indexOf(arrayChecked[i]);
-            console.log(firsFindIndex);
-            console.log(firsFindIndex + arrayChecked[i].length);
-        
-            string = string.replace(arrayChecked[i],"A");
-        }
-    }
-
-   console.log("теперь строка =" + string);
-    if (string.length > 1 && (string[0] !== "(" || string[string.length-1] !== ")")){       
-        console.log("отклонил по причине отсутствия открывающей или закрывающей скобки");
-        return false;
-    }
-    //console.log(string.length);
-    // console.log(string);
-
-    if(string.length === 3 && string[0] === "(") { // отсеивает (A) , но просто А должно проходить
-        return false;
-    }
-    console.log("до удаления скобок строка = " + string);
-    string = removeFirstBrackets(string);
-    console.log("После удаления скобок строка = " + string);
-
-
-    console.log("tut1");
-    if(string.length >= 5 ){ // условие хорошо будет работать, если будет хорошо работать часть с заменой подстрок на буквы
-        result_textarea.value = `недопустимая формула "${string}"`;
-        console.log("отклонили, ибо слишком большая");
-        return false;
-    } else if (string.length === 0){
-            result_textarea.value = `Введите формулу`;
-            console.log("нету формулы");
-             return false;
-    }
-
-
-
-    for(let i = 0; i < string.length; i += 1 ) {
-        if (string[0] === "!") { // не 
-            if (string.length === 2 && string[1].match(atom) !== null){
-            
-                console.log("ОТРИЦАНИЕ ВЕРНО");
-                return true;
-            }  else {
-               
-                console.log("ОТРИЦАНИЕ НЕ ВЕРНО");
-                console.log(string);
-                console.log(string.length);
-                console.log(string[1]);
-                return false;
-            }
-        } else if (string.length === 4) { // условие со стрелой
-            if ( (string[1] + string[2]).match(arrow)) {
-                console.log("СТРЕЛА");
-                console.log(string[0].match(atom) && string[3].match(atom));
-                return string[0].match(atom) && string[3].match(atom);
-            } 
-            return false;
-
-        } else if (string .length === 3 ){ // обычная формула
-
-            console.log("Обычная = ");
-            console.log(string[0].match(atom)!==null && string[1].match(operators)!==null && string[2].match(atom)!==null)
-            return string[0].match(atom) && string[1].match(operators) && string[2].match(atom);
-        } else if (string.length === 1 ) {
-            return string.match(atom) !== null;
-        }
-        console.log("Попала в отрицание без объяснений");
-        return false;
-    }
-
-    return false;
-}
-
-function checkString(getStrings){
-    console.log(typeof(getStrings));
-    //let tmp = getStrings;
-    
-    console.log("начинаем проверку строки:" + getStrings);
-    // console.log("tmp.length = " + tmp.length);
-    // console.log(tmp);
-    if (getStrings.length){
-        // tmp[0] = getStrings;
-        // console.log("Длина = " + tmp[0].length);
-        console.log("Длина2 = " + getStrings.length);
-        //console.log(tmp[0]);
-        console.log(getStrings);
-
-        if(checkSubString(getStrings)) {
-            console.log("tut2");
-            result_textarea.value = "Строка является формулой.";// Количество формул = " + ++subFormulasCounter;
-            console.log("Занесем это в просмотренное" + getStrings);
-            arrayChecked.push(getStrings);
-            return true;
         } else {
-            console.log("tut4");
-            result_textarea.value = "Строка не является формулой.";
-            return false;
-        }
-       
-    }
-}
-
-function checkSpace(string){
-    // console.log("проверка на пробелы");
-    for(let i = 0; i < string.length; i += 1 ) {
-        if(string[i] === " ") {
-            // console.log("найден пробел по индексу: " + i);
-            return false;
+            resultTextarea.value = "проверь пробелы";
         }
     }
-    return true;
 }
 
 function getBracketsFromString(inputString){
@@ -370,9 +108,7 @@ function getBracketsFromString(inputString){
             bracketsString += inputString[i];
         }
     }
-
     return bracketsString;
-
 }
 
 function countBrackets(str){
@@ -421,4 +157,304 @@ function countBrackets(str){
     }
     return (ArrBrackets.length === 0);
 
+}
+
+function checkSpace(string){
+    for(let i = 0; i < string.length; i += 1 ) {
+        if(string[i] === " ") {
+            return false;
+        }
+    }
+    return true;
+}
+
+function allSubStringsIsFormula(inputString){
+    let subStringsArray = [];
+
+    let isFormula = true;
+
+    configurateBraketsPair(inputString)
+    
+    console.log(openArray);
+    console.log(closeArray);
+    
+    let getFirstFindBracketIndex = Math.min.apply(null,openArray);
+    let getLastFindBracketIndex = Math.max.apply(null,closeArray);
+    
+    if(openArray.length > 0){
+    
+        let difference =  (getLastFindBracketIndex - getFirstFindBracketIndex);
+    
+        if ( difference + 1 !== inputString.length){
+            resultTextarea.value = "все должно находиться внутри скобок";
+            return null;
+        }
+
+        for(let i = 0; i < openArray.length;i++) {
+            subStringsArray.push(inputString.substring(openArray[i],closeArray[i] + 1));
+        }
+
+        subStringsArray = sortArraysOfString(subStringsArray);
+
+        for(let i = 0; i < openArray.length;i++) {
+            if( !checkString(subStringsArray[i]) ) {
+                isFormula = false
+            }
+        }
+
+    } else {
+        if ( checkString(inputString) ) {
+            isFormula = false;
+        }
+    }
+
+    return isFormula;
+}
+
+function configurateBraketsPair(array){
+
+    if ( openBracketsCount === 0 ) {
+        return;
+    }
+
+    let visitedArray = [];
+    let currentOpenState = [];
+
+    let indexOpen = -1;
+    let indexClose = -1;
+
+    let counterOfBracketPairs = 0;
+
+    for(let i = 0;i <= array.length; ){
+        if ( !visitedArray.includes(i) && array[i] === "(") {
+            indexOpen = i;
+            currentOpenState.push(i);
+        }  else if (!visitedArray.includes(i) && array[i] === ")"){
+            indexClose = i;
+        }
+
+        if ( indexOpen !== -1 && indexClose !== -1){
+
+            openArray.push(currentOpenState[currentOpenState.length-1] );
+            closeArray.push(indexClose );
+
+            visitedArray.push(currentOpenState[currentOpenState.length-1]);
+            visitedArray.push(indexClose);
+
+            currentOpenState.pop();
+            counterOfBracketPairs++;
+
+            indexClose = -1;
+            if (currentOpenState.length === 0) {
+                indexOpen = -1;
+            }
+  
+        }
+        if (i === array.length && counterOfBracketPairs !== openBracketsCount) {
+            i = 0;
+            continue;
+        }
+        i++;
+    }
+}
+
+function sortArraysOfString(inputArrayOfString){
+    for ( let i = 0; i < inputArrayOfString.length; i += 1 ) {
+       for ( let j = 0; j < inputArrayOfString.length; j += 1 ) {
+           if ( inputArrayOfString[i].length >= inputArrayOfString[j].length ) {
+               continue;
+           } else if ( inputArrayOfString[i].length < inputArrayOfString[j].length ) {
+               let tmp = inputArrayOfString[i];
+               inputArrayOfString[i] = inputArrayOfString[j];
+               inputArrayOfString[j] = tmp;
+           }
+       }
+    }
+    return inputArrayOfString;
+}
+
+function checkString(getStrings){    
+    if ( getStrings.length ) {
+        if ( checkSubString(getStrings) ) {
+            arrayChecked.push(getStrings);
+            return true;
+        } else {
+            return false;
+        }
+       
+    }
+}
+
+function checkSubString(string){
+    for(let i = arrayChecked.length - 1; i >= 0 ; i -= 1) {
+        if ( string.includes( arrayChecked[i] ) ) { 
+            string = string.replace(arrayChecked[i],"A");
+        }
+    }
+
+    if ( string.length > 1 && (string[0] !== "(" || string[string.length-1] !== ")") ) {       
+        console.log("отклонил по причине отсутствия открывающей или закрывающей скобки");
+        return false;
+    }
+
+    if(string.length === 3 && string[0] === "(") { // отсеивает (A) , но просто А должно проходить
+        return false;
+    }
+    string = removeFirstBrackets(string);
+
+    if(string.length >= 5 ){
+        resultTextarea.value = `недопустимая формула "${string}"`;
+        return false;
+    } else if (string.length === 0){
+            resultTextarea.value = `Введите формулу`;
+             return false;
+    }
+
+    for ( let i = 0; i < string.length; i += 1 ) {
+        if (string[0] === "!") { 
+            if (string.length === 2 && string[1].match(atom) !== null){
+                return true;
+            }  else {
+                return false;
+            }
+        } else if (string.length === 4) { 
+            if ( (string[1] + string[2]).match(arrow)) {
+                return string[0].match(atom) && string[3].match(atom);
+            } 
+            return false;
+
+        } else if (string .length === 3 ){
+            return string[0].match(atom) && string[1].match(operators) && string[2].match(atom);
+        } else if (string.length === 1 ) {
+            return string.match(atom) !== null;
+        }
+        return false;
+    }
+    return false;
+}
+
+function removeFirstBrackets(string) {
+    if (string[0] === "("){
+        string = string.substring(1,string.length);
+    }
+
+    if(string[string.length-1] === ")") {
+        string = string.substring(0,string.length-1);
+    }
+    return string;
+}
+
+function findAtomCount(string){
+    let counter = 0;
+    for ( let i = 0; i < arrayChecked.length; i += 1 ) {
+        if ( string.includes( arrayChecked[i] ) ) {
+            counter++;
+            console.log("Подформула в скобках = " + arrayChecked[i]);
+        }
+    }
+    for ( let i = 0; i < string.length; i++ ) {
+        let atomic = string[i].match(atom); 
+        if ( atomic!== null ) {
+            let condition = arrayContainsElement(atomic, arrayChecked);
+
+            if (condition) {
+                continue;
+            }
+            condition = arrayContainsElement(atomic, arrayOfFindAtom)
+            if ( condition) {
+                continue;
+            } else {
+                arrayOfFindAtom.push(atomic);
+                counter++;
+            }
+        }
+    }
+    return counter;
+}
+
+function arrayContainsElement(el,array){
+    for (let i = 0; i < array.length; i++ ) {
+        if ( array[i].toString(10) === (el).toString(10) ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+function checkAnswer() {
+
+    openBracketsCount = 0;
+    openArray = [];
+    closeArray = [];
+
+    arrayChecked = [];
+    arrayOfFindAtom = [];
+
+
+    let formula = genResultField.value;
+    let userAnswer = parseInt(answerField.value);
+
+    getBracketsFromString(formula);
+    allSubStringsIsFormula(formula);
+    let correctAnswer = findAtomCount(formula);
+
+    if (correctAnswer === userAnswer) {
+        console.log("Правильно");
+        resultTextarea.value  = "правильно";
+    } else {
+        console.log("не правильно");
+        resultTextarea.value  = "не правильно";
+    }
+}
+
+
+/////////
+const binary = ["->", "&", "|", "~"];
+const braces = ["(", ")"];
+const constant = ["0", "1"];
+const symbol = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
+    "M", "N", "O", "P", "Q", "R", "S", "T", "U", "X", "Y", "Z", "V", "W"];
+
+
+const nestLimit = 15;
+let nest = 0;
+
+function genFormula() {
+    nest = 0;
+    let c = Math.floor(Math.random() * (nest < nestLimit ? 4 : 2));
+
+    switch (c) {
+        case 0:
+            return genConst();
+        case 1:
+            return genSymbol();
+        case 2:
+            return genBinary();
+        case 3:
+            return genUnary();
+    }
+}
+
+
+// genConst ...
+function genConst() {
+    return constant[Math.floor(Math.random() * constant.length)];
+}
+
+// genSymbol ...
+function genSymbol() {
+    return symbol[Math.floor(Math.random() * symbol.length)];
+}
+
+// genBinary ...
+function genBinary() {
+    nest++;
+    return "(" + genFormula() + binary[Math.floor(Math.random() * binary.length)] + genFormula() + ")"
+}
+
+// genUnary ...
+function genUnary() {
+    nest++;
+    return "(!" + genFormula() + ")"
 }
